@@ -1,0 +1,120 @@
+<html>
+  <head>
+   <script type="text/javascript" src="loader.js"></script>
+   <!-- import the iris client-side library for browser-->
+   <script src="http://localhost:8088/iris-ws.js"></script>
+   <script type="text/javascript">
+      google.charts.load('current', {'packages':['gauge']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+
+        var data = google.visualization.arrayToDataTable([
+          ['Label', 'Value'],
+          ['Memory', 80],
+          ['CPU', 55],
+          ['Network', 68]
+        ]);
+
+        var options = {
+          width: 400, height: 120,
+          redFrom: 90, redTo: 100,
+          yellowFrom:75, yellowTo: 90,
+          minorTicks: 5
+        };
+
+        var chart = new google.visualization.Gauge(document.getElementById('chart_div'));
+
+        chart.draw(data, options);
+
+		
+		
+        <!-- setInterval(function() { -->
+          <!-- data.setValue(0, 1, 40 + Math.round(60 * Math.random())); -->
+          <!-- chart.draw(data, options); -->
+        <!-- }, 50); -->
+        <!-- setInterval(function() { -->
+          <!-- data.setValue(1, 1, 40 + Math.round(60 * Math.random())); -->
+          <!-- chart.draw(data, options); -->
+        <!-- }, 50); -->
+        <!-- setInterval(function() { -->
+          <!-- data.setValue(2, 1, 60 + Math.round(20 * Math.random())); -->
+          <!-- chart.draw(data, options); -->
+        <!-- }, 50); -->
+      
+	  
+		var scheme = "ws";
+		var port = ":8088";
+		// see app.Get("/echo", ws.Handler()) on main.go
+		var wsURL = scheme + "://" + "localhost" + port+"/echo";
+		var input = document.getElementById("input");
+		var output = document.getElementById("output");
+		// Ws comes from the auto-served '/iris-ws.js'
+		var socket = new Ws(wsURL)
+		socket.OnConnect(function () {
+			output.innerHTML += "Status: Connected\n";
+		});
+		socket.OnDisconnect(function () {
+			output.innerHTML += "Status: Disconnected\n";
+		});
+		// read events from the server
+		socket.On("chat", function (msg) {
+			console.log(msg);
+			var num = Number(msg);
+			data.setValue(0, 1, num);
+            chart.draw(data, options);
+			
+			data.setValue(1, 1, num);
+            chart.draw(data, options);
+			
+			data.setValue(2, 1, num);
+            chart.draw(data, options);
+		});
+	  }
+    </script>
+
+  </head>
+  <body>
+    <div id="chart_div" style="width: 400px; height: 120px;"></div>
+	
+	<!-- the message's input -->
+	<!-- <input id="input" type="text" /> -->
+
+	<!-- when clicked then an iris websocket event will be sent to the server, at this example we registered the 'chat' -->
+	<!-- <button onclick="send()">Send</button> -->
+
+	<!-- the messages will be shown here -->
+	<pre id="output"></pre>
+	
+	<!-- <script> -->
+		<!-- console.log(document); -->
+		<!-- var scheme = "ws"; -->
+		<!-- var port = ":8088"; -->
+		<!-- // see app.Get("/echo", ws.Handler()) on main.go -->
+		<!-- var wsURL = scheme + "://" + "localhost" + port+"/echo"; -->
+		<!-- var input = document.getElementById("input"); -->
+		<!-- var output = document.getElementById("output"); -->
+		<!-- // Ws comes from the auto-served '/iris-ws.js' -->
+		<!-- var socket = new Ws(wsURL) -->
+		<!-- socket.OnConnect(function () { -->
+			<!-- output.innerHTML += "Status: Connected\n"; -->
+		<!-- }); -->
+		<!-- socket.OnDisconnect(function () { -->
+			<!-- output.innerHTML += "Status: Disconnected\n"; -->
+		<!-- }); -->
+		<!-- // read events from the server -->
+		<!-- socket.On("chat", function (msg) { -->
+			<!-- console.log(msg); -->
+			<!-- addMessage(msg); -->
+		<!-- }); -->
+		<!-- function send() { -->
+			<!-- addMessage("Me: " + input.value); // write ourselves -->
+			<!-- socket.Emit("chat", input.value);// send chat event data to the websocket server -->
+			<!-- input.value = ""; // clear the input -->
+		<!-- } -->
+		<!-- function addMessage(msg) { -->
+			<!-- output.innerHTML += msg + "\n"; -->
+		<!-- } -->
+	<!-- </script> -->
+  </body>
+</html>
