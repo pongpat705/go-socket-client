@@ -9,24 +9,51 @@
 
       function drawChart() {
 
-        var data = google.visualization.arrayToDataTable([
+        var rpmdata = google.visualization.arrayToDataTable([
           ['Label', 'Value'],
-          ['Memory', 80],
-          ['CPU', 55],
-          ['Network', 68]
+          ['RPM', 9000]
+        ]);
+		
+		var speeddata = google.visualization.arrayToDataTable([
+          ['Label', 'Value'],
+		  ['SPEED', 260]
+        ]);
+		
+		var fueldata = google.visualization.arrayToDataTable([
+          ['Label', 'Value'],
+		  ['FUEL', 100]
         ]);
 
-        var options = {
-          width: 400, height: 120,
+        var rpmoptions = {
+		  min : 0, max : 9000, 
+          redFrom: 8000, redTo: 9000, minorTicks: 5
+        };
+		
+		var speedoptions = {
+          redFrom: 230, redTo: 260,
+          yellowFrom:180, yellowTo: 230,
+		  max : 260, min : 0,
+          minorTicks: 5
+        };
+		
+		var fueloptions = {
           redFrom: 90, redTo: 100,
           yellowFrom:75, yellowTo: 90,
+		  max : 100, min : 0,
           minorTicks: 5
         };
 
-        var chart = new google.visualization.Gauge(document.getElementById('chart_div'));
+        var chart1 = new google.visualization.Gauge(document.getElementById('chart_1'));
 
-        chart.draw(data, options);
+        chart1.draw(rpmdata, rpmoptions);
+		
+		var chart2 = new google.visualization.Gauge(document.getElementById('chart_2'));
 
+        chart2.draw(speeddata, speedoptions);
+		
+		var chart3 = new google.visualization.Gauge(document.getElementById('chart_3'));
+
+        chart3.draw(fueldata, fueloptions);
 		
 		
         <!-- setInterval(function() { -->
@@ -58,24 +85,35 @@
 			output.innerHTML += "Status: Disconnected\n";
 		});
 		// read events from the server
-		socket.On("chat", function (msg) {
+		socket.On("rpm", function (msg) {
 			console.log(msg);
 			var num = Number(msg);
-			data.setValue(0, 1, num);
-            chart.draw(data, options);
+			rpmdata.setValue(0, 1, num);
+            chart1.draw(rpmdata, rpmoptions);
+		});
+		
+		socket.On("speed", function (msg) {
+			console.log(msg);
+			var num = Number(msg);
+			speeddata.setValue(0, 1, num);
+             chart2.draw(speeddata, speedoptions);
 			
-			data.setValue(1, 1, num);
-            chart.draw(data, options);
-			
-			data.setValue(2, 1, num);
-            chart.draw(data, options);
+		});
+		
+		socket.On("fuel", function (msg) {
+			console.log(msg);
+			var num = Number(msg);
+			fueldata.setValue(0, 1, num);
+            chart3.draw(fueldata, fueloptions);
 		});
 	  }
     </script>
 
   </head>
   <body>
-    <div id="chart_div" style="width: 400px; height: 120px;"></div>
+    <div id="chart_1" style="width: 400px; height: 120px;"></div>
+	<div id="chart_2" style="width: 400px; height: 120px;"></div>
+	<div id="chart_3" style="width: 400px; height: 120px;"></div>
 	
 	<!-- the message's input -->
 	<!-- <input id="input" type="text" /> -->
